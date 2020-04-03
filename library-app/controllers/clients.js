@@ -8,7 +8,7 @@ module.exports.create = async (req, res) => {
     return res.json({ errors: errors.array() })
   }
 
-  const { name, username, password, confirm_password } = req.body
+  const { name, username, password, photo } = req.body
   const match = await client.check(username)
 
   if (match) {
@@ -17,7 +17,7 @@ module.exports.create = async (req, res) => {
 
   try {
     const hashedPassword = await hash(password)
-    const newClient = await client.create({ name, username, password: hashedPassword })
+    const newClient = await client.create({ name, username, password: hashedPassword, photo: photo || null })
     res.json({ client: newClient })
   } catch (err) {
     console.log(err)

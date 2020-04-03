@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -9,6 +9,9 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
+import { uploadPhoto } from '../api_client/user'
+import { Redirect } from 'react-router-dom'
+import Alert from '@material-ui/lab/Alert/Alert'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -28,10 +31,41 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  root: {
+    width: '100%',
+    '& > * + *': {
+      marginTop: theme.spacing(2),
+    },
+  }
 }));
 
-export default function SignUp() {
+const SignUp = ({ handleSignUp, signupError, signupDone }) => {
   const classes = useStyles();
+  const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [photo, setPhoto] = useState({})
+
+  useEffect(() => {}, [name, username, password, photo, signupDone])
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    if (photo.name) {
+      const formData = new FormData()
+      formData.append('image', photo)
+      try {
+        const photoURL = await uploadPhoto(formData)
+        handleSignUp(name, username, password, photoURL.data.filename)
+      } catch (error) {
+        console.log(error)
+      }
+    } else {
+      handleSignUp(name, username, password)
+    }
+
+  }
+
+  if (signupDone) return <Redirect to='/login' />
 
   return (
     <Container component="main" maxWidth="xs">
@@ -43,6 +77,10 @@ export default function SignUp() {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
+        { signupError ?
+          <div className={classes.root}><Alert severity="error">{signupError}</Alert></div> :
+          null
+        }
         <form className={classes.form} noValidate>
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -55,6 +93,7 @@ export default function SignUp() {
                 id="name"
                 label="Name"
                 autoFocus
+                onChange={(event) => setName(event.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -65,6 +104,7 @@ export default function SignUp() {
                 id="username"
                 label="Username"
                 name="username"
+                onChange={(event) => setUsername(event.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -77,6 +117,7 @@ export default function SignUp() {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                onChange={(event) => setPassword(event.target.value)}
               />
             </Grid>
             <Grid item xs={12} container justify='center'>
@@ -85,10 +126,11 @@ export default function SignUp() {
                 component="label"
                 color='secondary'
               >
-                Upload File
+                Select photo
                 <input
                   type="file"
                   style={{ display: "none" }}
+                  onChange={(event) => setPhoto(event.target.files[0])}
                 />
               </Button>
             </Grid>
@@ -99,6 +141,7 @@ export default function SignUp() {
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick={handleSubmit}
           >
             Sign Up
           </Button>
@@ -114,3 +157,5 @@ export default function SignUp() {
     </Container>
   );
 }
+
+export default SignUp

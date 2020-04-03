@@ -5,10 +5,10 @@ const checkAuthors = async (authors) => {
   const unregisteredAuthors = []
   const registeredAuthors = []
 
-  for (let i = 0; i < authors.length; i++) {
-    const requestedAuthor = await author.find(authors[i].firstname, authors[i].lastname)
+  for (let item of authors) {
+    const requestedAuthor = await author.find(item.firstname, item.lastname)
     if (!requestedAuthor) {
-      unregisteredAuthors.push(authors[i])
+      unregisteredAuthors.push(item)
     } else {
       registeredAuthors.push(requestedAuthor)
     }
@@ -31,18 +31,18 @@ module.exports.add = async (req, res) => {
   const match = await book.check(published, title)
 
   if (match) {
-    const updateBookStock = await book.updateStock(published, title)
-    return res.json(updateBookStock)
+    return res.json({ message: 'Book already exists' })
   }
 
   // authors
   const authorsBuffer = await checkAuthors(authors)
+
   if (authorsBuffer.unregisteredAuthors.length > 0) {
     return res.json({ error: 'No such authors', authors: authorsBuffer.unregisteredAuthors })
   }
 
   const addedBook = await book.add(published, title)
-  await book.linkBookWithAuthors(addedBook.id, authorsBuffer.registeredAuthors)
+  await book.linkBookWithAuthors(addedBook.book_id, authorsBuffer.registeredAuthors)
 
   return res.json({ addedBook })
 }

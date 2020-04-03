@@ -11,6 +11,7 @@ const mountRoutes = require('./routes')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())
+app.use('/uploads', express.static('uploads'))
 mountRoutes(app)
 
 app.set('views', path.join(__dirname, 'views'))

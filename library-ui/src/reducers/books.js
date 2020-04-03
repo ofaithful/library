@@ -1,6 +1,10 @@
 const initialState = {
   availableBooks: [],
-  borrowedBooks: []
+  borrowedBooks: [],
+  borrowings: [],
+  borrowError: null,
+  addBookDone: false,
+  addBookError: null
 }
 
 export default function booksReducer(state = initialState, action) {
@@ -8,7 +12,8 @@ export default function booksReducer(state = initialState, action) {
     case 'FETCH_AVAILABLE_BOOKS_REQUEST':
       return {
         ...state,
-        availableBooks: []
+        availableBooks: [],
+        borrowError: null
       }
     case 'FETCH_AVAILABLE_BOOKS_SUCCESS':
       return {
@@ -21,38 +26,50 @@ export default function booksReducer(state = initialState, action) {
       }
     case 'ADD_BOOK_REQUEST':
       return {
-        ...state
+        ...state,
+        borrowError: null,
+        addBookDone: false,
+        addBookError: null
       }
     case 'ADD_BOOK_SUCCESS':
       let updatedBooksList = state.availableBooks.concat(action.payload)
       return {
         ...state,
-        availableBooks: updatedBooksList
+        availableBooks: updatedBooksList,
+        addBookDone: true
       }
     case 'ADD_BOOK_ERROR':
       return {
-        ...state
+        ...state,
+        addBookDone: false,
+        addBookError: action.payload
       }
     case 'BORROW_BOOK_REQUEST':
       return {
-        ...state
+        ...state,
+        borrowError: null
       }
     case 'BORROW_BOOK_SUCCESS':
-      let addedBorrowedBooks = state.borrowedBooks.concat(action.payload)
+      const addedBorrowings = state.borrowings.concat(action.payload)
+      const updatedAvailableBooks = state.availableBooks.filter(item => item.book_id !== action.payload.book_id)
       return {
         ...state,
-        borrowedBooks: addedBorrowedBooks
+        borrowings: addedBorrowings,
+        borrowError: null,
+        availableBooks: updatedAvailableBooks
       }
-    case 'BORROW_BOOKS_ERROR':
+    case 'BORROW_BOOK_ERROR':
       return {
-        ...state
+        ...state,
+        borrowError: action.payload,
       }
     case 'RETURN_BOOK_REQUEST':
       return {
-        ...state
+        ...state,
+        borrowError: null
       }
     case 'RETURN_BOOK_SUCCESS':
-      let deletedBorrowedBooks = state.borrowedBooks.filter(item => item.id !== action.payload)
+      const deletedBorrowedBooks = state.borrowedBooks.filter(item => item.book_id !== action.payload)
       return {
         ...state,
         borrowedBooks: deletedBorrowedBooks
@@ -68,6 +85,7 @@ export default function booksReducer(state = initialState, action) {
     case 'GET_BORROWED_BOOKS_SUCCESS':
       return {
         ...state,
+        borrowedBooks: action.payload,
       }
     case 'GET_BORROWED_BOOKS_ERROR':
       return {

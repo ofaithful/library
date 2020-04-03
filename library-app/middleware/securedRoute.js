@@ -10,7 +10,6 @@ module.exports = async (req, res, next) => {
   }
   try {
     const data = await verifyToken(token, secretKey)
-    console.log(data)
     next()
   } catch (err) {
     console.log(err)

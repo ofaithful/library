@@ -1,4 +1,4 @@
-const borrowings = require('../db').borrowings
+const { borrowings, book } = require('../db')
 
 module.exports.getTakenBooks = async (req, res) => {
   const client_id = req.params.id
@@ -14,7 +14,7 @@ module.exports.getTakenBooks = async (req, res) => {
 module.exports.borrow = async (req, res) => {
   const { book_id, client_id } = req.body
   try {
-    const borrowInfo = borrowings.borrow(book_id, client_id)
+    const borrowInfo = await borrowings.borrow(book_id, client_id)
     return res.json({ borrowDetails: borrowInfo })
   } catch (err) {
     console.log(err)
@@ -23,10 +23,11 @@ module.exports.borrow = async (req, res) => {
 }
 
 module.exports.return = async (req, res) => {
-  const id = req.params.id
+  const { client_id, book_id } = req.body
   try {
-    const status = borrowings.return(id)
-    return res.json({ status })
+    const status = await borrowings.return(client_id, book_id)
+    const updatedBookStock = await book.increaseStockById(book_id)
+    return res.json({ updatedBookStock })
   } catch (err) {
     console.log(err)
     return res.json({ error: err })

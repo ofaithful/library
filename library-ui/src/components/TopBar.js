@@ -14,6 +14,10 @@ import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
 import AssignmentIcon from '@material-ui/icons/Assignment'
+import { Link } from 'react-router-dom'
+import Divider from '@material-ui/core/Divider'
+import AccessibilityNewIcon from '@material-ui/icons/AccessibilityNew'
+import AddIcon from '@material-ui/icons/Add'
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -28,12 +32,15 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
   },
+  noUnderline: {
+    textDecoration: 'none'
+  },
   menuButton: {
     marginRight: theme.spacing(2),
   },
 }))
 
-export default function TemporaryDrawer() {
+const TopBar = ({ userLogoutAction, title, isAdmin }) => {
   const classes = useStyles();
   const [state, setState] = React.useState({
     left: false
@@ -57,14 +64,36 @@ export default function TemporaryDrawer() {
       onKeyDown={toggleDrawer(anchor, false)}
     >
       <List>
-        <ListItem button key='Available books'>
-          <ListItemIcon><LibraryBooksIcon /></ListItemIcon>
-          <ListItemText primary='Available books' />
-        </ListItem>
-        <ListItem button key='Borrowings'>
-          <ListItemIcon><AssignmentIcon /></ListItemIcon>
-          <ListItemText primary='Borrowings' />
-        </ListItem>
+        <Link to="/" className={classes.noUnderline}>
+          <ListItem button key='Available books'>
+            <ListItemIcon><LibraryBooksIcon /></ListItemIcon>
+            <ListItemText primary='Available books' />
+          </ListItem>
+        </Link>
+        <Link to="/borrowings" className={classes.noUnderline}>
+          <ListItem button key='Borrowings'>
+            <ListItemIcon><AssignmentIcon /></ListItemIcon>
+            <ListItemText primary='Borrowings' />
+          </ListItem>
+        </Link>
+        { isAdmin ?
+          <>
+            <Divider />
+            <Link to="/add-book" className={classes.noUnderline}>
+              <ListItem button key='Add book'>
+                <ListItemIcon><AddIcon /></ListItemIcon>
+                <ListItemText primary='Add book' />
+              </ListItem>
+            </Link>
+            <Link to="/add-author" className={classes.noUnderline}>
+              <ListItem button key='Add author'>
+                <ListItemIcon><AccessibilityNewIcon /></ListItemIcon>
+                <ListItemText primary='Add author' />
+              </ListItem>
+            </Link>
+          </> :
+          null
+        }
       </List>
     </div>
   );
@@ -80,11 +109,13 @@ export default function TemporaryDrawer() {
             </Drawer>
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            Books
+            { title }
           </Typography>
-          <Button color="inherit">Login</Button>
+          <Button color="inherit" onClick={userLogoutAction}>Logout</Button>
         </Toolbar>
       </AppBar>
     </div>
   );
 }
+
+export default TopBar

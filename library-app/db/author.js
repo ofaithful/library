@@ -1,5 +1,14 @@
 const db = require('./database')
 
+module.exports.getAll = async () => {
+  try {
+    const { rows } = await db.query('SELECT * FROM authors')
+    return rows
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 module.exports.find = async (firstname, lastname) => {
   try {
     const { rows } = await db.query(`

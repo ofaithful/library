@@ -3,8 +3,9 @@ const initialState = {
   signUpDone: false,
   user: {},
   loginError: null,
-  signupError: null,
-  isLoading: true
+  signUpError: null,
+  isLoading: true,
+  isAdmin: false
 }
 
 export default function userReducer(state = initialState, action) {
@@ -14,7 +15,10 @@ export default function userReducer(state = initialState, action) {
         ...state,
         isLogin: false,
         isLoading: true,
-        user: action.payload
+        user: action.payload,
+        signUpDone: false,
+        loginError: false,
+        isAdmin: false
       }
     case 'USER_LOGIN_SUCCESS':
       return {
@@ -22,23 +26,29 @@ export default function userReducer(state = initialState, action) {
         isLogin: true,
         user: action.payload,
         signUpDone: false,
-        loginError: null
+        isLoading: false,
+        loginError: null,
+        isAdmin: action.payload.role === 'admin'
       }
     case 'USER_LOGIN_ERROR':
       return {
         ...state,
-        loginError: action.payload
+        loginError: action.payload,
+        isLoading: false,
+        isAdmin: false,
       }
     case 'USER_SIGN_UP_REQUEST':
       return {
         ...state,
-        signUpDone: false
+        signUpDone: false,
+        isAdmin: false
       }
     case 'USER_SIGN_UP_SUCCESS':
       return {
         ...state,
         signUpDone: true,
-        signupError: null
+        signUpError: null,
+        loginError: null
       }
     case 'USER_SIGN_UP_ERROR':
       return {
@@ -52,7 +62,8 @@ export default function userReducer(state = initialState, action) {
         ...state,
         isLogin: false,
         user: {},
-        isLoading: false
+        isLoading: false,
+        isAdmin: false
       }
     case 'ERROR_CLEAR':
       return {

@@ -6,7 +6,8 @@ const getActiveBorrowingsCount = async (client_id) => {
   try {
     const { rows } = await db.query('SELECT count(*) FROM borrowings WHERE borrowings.client_id = $1',
       [client_id])
-    return rows[0]
+
+    return parseInt(rows[0].count, 10)
   } catch(err) {
     console.log(err)
   }
@@ -14,7 +15,7 @@ const getActiveBorrowingsCount = async (client_id) => {
 
 module.exports.getBorrowedBooks = async (client_id) => {
   try {
-    const { rows } = db.query(`
+    const { rows } = await db.query(`
       SELECT * FROM books
       INNER JOIN borrowings ON borrowings.client_id = $1
       WHERE books.book_id = borrowings.book_id`,
@@ -31,6 +32,7 @@ module.exports.borrow = async (book_id, client_id) => {
   try {
     // refuse if client has more active borrowings than MAX_BORROWINGS
     const currentClientBorrowings = await getActiveBorrowingsCount(client_id)
+
     if (currentClientBorrowings >= MAX_BORROWINGS) {
       return { message: 'you can no longer borrow until you return the previous books' }
     }
@@ -47,10 +49,12 @@ module.exports.borrow = async (book_id, client_id) => {
   }
 }
 
-module.exports.return = async (id) => {
+module.exports.return = async (client_id, book_id) => {
   try {
-    const { rows } = await db.query(`DELETE FROM borrowings WHERE borroings.id = $1`, [id])
-    return rows[0]
+    const { rows } = await db.query(`DELETE FROM borrowings
+        WHERE borrowings.client_id = $1 AND borrowings.book_id = $2`,
+      [client_id, book_id])
+    return rows
   } catch(err) {
     console.log(err)
   }

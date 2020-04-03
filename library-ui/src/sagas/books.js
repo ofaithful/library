@@ -1,5 +1,5 @@
 import { takeEvery, put } from 'redux-saga/effects'
-import { addBook, borrowBook, getBorrowedBooks, returnBook } from '../api_client/books'
+import { addBook, borrowBook, getBorrowedBooks, returnBook, getAvailableBooks } from '../api_client/books'
 
 function* watchAddBook() {
   yield takeEvery('ADD_BOOK_REQUEST', addBookWorker)
@@ -10,7 +10,11 @@ function* addBookWorker(action) {
     const token = yield localStorage.getItem('token')
     const headers = { Authorization: `Bearer ${token}`}
     const result = yield addBook(action.payload, headers)
-    yield put({ type: 'ADD_BOOK_SUCCESS', payload: result })
+    if (result.data.message) {
+      yield put({ type: 'ADD_BOOK_ERROR', payload: result.data.message })
+    } else {
+      yield put({ type: 'ADD_BOOK_SUCCESS', payload: result })
+    }
   } catch (error) {
     yield put({ type: 'ADD_BOOK_ERROR', payload: error })
   }
@@ -23,9 +27,13 @@ function* watchBorrowBook() {
 function* borrowBookWorker(action) {
   try {
     const token = yield localStorage.getItem('token')
-    const headers = { Authorization: `Bearer ${token}`}
+    const headers = { Authorization: `Bearer ${token}` }
     const result = yield borrowBook(action.payload, headers)
-    yield put({ type: 'BORROW_BOOK_SUCCESS', payload: result })
+    if (result.data.borrowDetails && result.data.borrowDetails.message) {
+      yield put({ type: 'BORROW_BOOK_ERROR', payload: result.data.borrowDetails.message })
+    } else {
+      yield put({ type: 'BORROW_BOOK_SUCCESS', payload: result.data.borrowDetails })
+    }
   } catch (error) {
     yield put({ type: 'BORROW_BOOK_SUCCESS', payload: error })
   }
@@ -40,7 +48,7 @@ function* getBorrowedBooksWorker(action) {
     const token = yield localStorage.getItem('token')
     const headers = { Authorization: `Bearer ${token}`}
     const result = yield getBorrowedBooks(action.payload, headers)
-    yield put({ type: 'GET_BORROWED_BOOKS_SUCCESS', payload: result })
+    yield put({ type: 'GET_BORROWED_BOOKS_SUCCESS', payload: result.data.borrowedBooks })
   } catch (error) {
     yield put({ type: 'GET_BORROWED_BOOKS_ERROR', payload: error })
   }
@@ -55,10 +63,31 @@ function* returnBookWorker(action) {
     const token = yield localStorage.getItem('token')
     const headers = { Authorization: `Bearer ${token}`}
     const result = yield returnBook(action.payload, headers)
-    yield put({ type: 'RETURN_BOOK_SUCCESS', payload: result })
+    yield put({ type: 'RETURN_BOOK_SUCCESS', payload: result.data.updatedBookStock.book_id })
   } catch (error) {
     yield put({ type: 'RETURN_BOOK_ERROR', payload: error })
   }
 }
 
-export const bookSagas = [ watchAddBook(), watchBorrowBook(), watchGetBorrowedBooks(), watchReturnBook() ]
+function* watchGetAvailableBooks() {
+  yield takeEvery('FETCH_AVAILABLE_BOOKS_REQUEST', getAvailableBooksWorker)
+}
+
+function* getAvailableBooksWorker(action) {
+  try {
+    const token = yield localStorage.getItem('token')
+    const headers = { Authorization: `Bearer ${token}`}
+    const result = yield getAvailableBooks(headers)
+    yield put({ type: 'FETCH_AVAILABLE_BOOKS_SUCCESS', payload: result.data.books })
+  } catch (error) {
+    yield put({ type: 'FETCH_AVAILABLE_BOOKS_ERROR', payload: error })
+  }
+}
+
+export const bookSagas = [
+  watchAddBook(),
+  watchBorrowBook(),
+  watchGetBorrowedBooks(),
+  watchReturnBook(),
+  watchGetAvailableBooks()
+]

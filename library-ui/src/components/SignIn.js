@@ -1,16 +1,15 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import TextField from '@material-ui/core/TextField'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Checkbox from '@material-ui/core/Checkbox'
 import { Link } from 'react-router-dom'
 import Grid from '@material-ui/core/Grid'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
+import Alert from '@material-ui/lab/Alert'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -30,10 +29,26 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  root: {
+    width: '100%',
+    '& > * + *': {
+      marginTop: theme.spacing(2),
+    },
+  }
 }));
 
-export default function SignIn() {
+const SignIn = ({ handleLogin, loginError }) => {
   const classes = useStyles();
+  const [userName, setUserName] = useState('');
+  const [userPassword, setUserPassword] = useState('');
+
+  useEffect(() => {
+  }, [userName, userPassword])
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    handleLogin(userName, userPassword);
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -45,6 +60,10 @@ export default function SignIn() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
+        { loginError ?
+          <div className={classes.root}><Alert severity="error">{loginError}</Alert></div> :
+          null
+        }
         <form className={classes.form} noValidate>
           <TextField
             variant="outlined"
@@ -55,6 +74,7 @@ export default function SignIn() {
             label="Username"
             name="username"
             autoFocus
+            onChange={(event) => setUserName(event.target.value)}
           />
           <TextField
             variant="outlined"
@@ -66,10 +86,7 @@ export default function SignIn() {
             type="password"
             id="password"
             autoComplete="current-password"
-          />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
+            onChange={(event) => setUserPassword(event.target.value)}
           />
           <Button
             type="submit"
@@ -77,6 +94,7 @@ export default function SignIn() {
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick={handleSubmit}
           >
             Sign In
           </Button>
@@ -93,3 +111,5 @@ export default function SignIn() {
     </Container>
   );
 }
+
+export default SignIn;

@@ -19,10 +19,11 @@ export const post = (path, data, headers) => {
   })
 }
 
-export const deleteRequest = (path, headers) => {
+export const deleteRequest = (path, data, headers) => {
   return axios({
     method: 'DELETE',
     url: BASE_URL + path,
+    data,
     headers
   })
 }

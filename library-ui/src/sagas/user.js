@@ -9,9 +9,21 @@ function* watchUserLogin() {
 function* userLogin(action) {
   try {
     const result = yield signIn(action.payload)
-    localStorage.setitem('token', result.token)
-    let user = jwt.decode(result.token)
-    yield put({ type: 'USER_LOGIN_SUCCESS', payload: user })
+    if (result.data && result.data.errors) {
+      yield put({
+        type: 'USER_LOGIN_ERROR',
+        payload: `${result.data.errors[0].param}  ${result.data.errors[0].msg}`
+      })
+    }
+    if (result.data && result.data.message) {
+      yield put({ type: 'USER_LOGIN_ERROR', payload: result.data.message })
+    }
+
+    const user = jwt.decode(result.data.token)
+    if (user) {
+      localStorage.setItem('token', result.data.token)
+      yield put({ type: 'USER_LOGIN_SUCCESS', payload: result.data.user })
+    }
   } catch(error) {
     yield put({ type: 'USER_LOGIN_ERROR', payload: error.response })
   }
@@ -25,7 +37,14 @@ function* userSignUp(action) {
   try {
     const result = yield signUp(action.payload)
     console.log('result: ', result)
-    yield put({ type: 'USER_SIGN_UP_SUCCESS' })
+    if (result.data && result.data.errors) {
+      yield put({
+        type: 'USER_SIGN_UP_ERROR',
+        payload: `${result.data.errors[0].param}  ${result.data.errors[0].msg}`
+      })
+    } else {
+      yield put({ type: 'USER_SIGN_UP_SUCCESS' })
+    }
   } catch(error) {
     yield put({ type: 'USER_SIGN_UP_ERROR', payload: error.response })
   }

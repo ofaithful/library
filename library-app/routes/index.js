@@ -3,6 +3,7 @@ const authors = require('./author')
 const clients = require('./client')
 const borrowings = require('./borrowings')
 const login = require('./login')
+const upload = require('./upload')
 
 module.exports = app => {
   app.use('/books', books)
@@ -10,4 +11,5 @@ module.exports = app => {
   app.use('/clients', clients)
   app.use('/borrowings', borrowings)
   app.use('/login', login)
+  app.use('/upload', upload)
 }

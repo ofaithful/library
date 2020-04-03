@@ -21,7 +21,7 @@ export const getBorrowedBooks = (data) => {
 export const borrowBookAction = (data) => {
   return {
     type: 'BORROW_BOOK_REQUEST',
-    payload: id
+    payload: data
   }
 }
 

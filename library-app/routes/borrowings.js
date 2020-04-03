@@ -18,6 +18,6 @@ router.post('/', async (req, res) => {
 })
 
 // return a book
-router.delete('/:id', async (req, res) => {
+router.delete('/', async (req, res) => {
   borrowings.return(req, res)
 })

@@ -15,15 +15,15 @@ module.exports.find = async (username) => {
 
 module.exports.create = async (data, asAdmin) => {
   try {
-    const { name, username, password } = data
+    const { name, username, password, photo } = data
     const role = asAdmin ? 'admin' : 'client'
     const now = new Date()
-    const hashedPassword = await hash(password)
+    const hashedPassword = asAdmin ? await hash(password) : password
 
     const { rows } = await db.query(`
-    INSERT INTO clients(name, username, password, registration_date, role) VALUES
-      ($1, $2, $3, $4, $5) RETURNING client_id, name, username, registration_date, role`,
-      [name, username, hashedPassword, now, role]
+    INSERT INTO clients(name, username, password, registration_date, photo, role) VALUES
+      ($1, $2, $3, $4, $5, $6) RETURNING client_id, name, username, registration_date, photo, role`,
+      [name, username, hashedPassword, now, photo, role]
     )
     return rows[0]
   } catch(err) {
