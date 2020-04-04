@@ -4,8 +4,8 @@
   "description": "genesis test",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js --exec \"npm run lint && node\"",
-    "lint": "eslint **/*.js",
+    "dev": "nodemon index.js --exec \"yarn run lint && node\"",
+    "lint": "eslint \"**/*.js\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "create_db": "cd ./db && db-migrate db:create library --config ./config/dev.json",
     "migrate_down": "cd ./db && db-migrate down -c 1 --config ./config/dev.json",
@@ -29,6 +29,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "db-migrate": "^0.11.6",
     "db-migrate-pg": "^1.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",

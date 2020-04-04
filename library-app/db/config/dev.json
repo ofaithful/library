@@ -2,8 +2,8 @@
   "dev": {
     "driver": "pg",
     "user": "postgres",
-    "password": "123",
-    "host": "localhost",
+    "host": { "ENV": "DB_HOST" },
+    "password": "postgres",
     "port": "5432",
     "database": "library"
   },

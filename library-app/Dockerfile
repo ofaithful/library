@@ -1,11 +1,14 @@
-FROM alpine:3.10
+FROM node:13
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN yarn
+RUN yarn install
 
 COPY . .
+COPY wait-for-it.sh .
 
-RUN yarn run migrate_up_all && yarn run dev
+EXPOSE 3000
+
+CMD ["yarn", "run", "dev"]

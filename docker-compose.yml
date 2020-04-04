@@ -1,0 +1,32 @@
+version: '3'
+services:
+  db:
+    image: 'postgres:12'
+    container_name: db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: library
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  app:
+    build: ./library-app
+    container_name: app
+    ports:
+      - 3000:3000
+    environment:
+      DB_HOST: db
+    command: bash -c "./wait-for-it.sh db:5432 && yarn run migrate_up_all && yarn run dev"
+    depends_on:
+      - "db"
+
+  library-ui:
+    build: ./library-ui
+    container_name: library-ui
+    command: ["yarn", "start"]
+    links:
+      - app
+    stdin_open: true
+    ports:
+      - 8000:8000
